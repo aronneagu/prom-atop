@@ -1,11 +1,11 @@
 #!/bin/bash
-DATADIR=$(mktemp -d -p $(pwd))
-PROMCONF="promethesu.yml"
-promtool tsdb create-blocks-from openmetrics data.file $DATADIR
+VMBIN="$(which vm)"
+VMIMPORT="http://localhost:8428/api/v1/import/prometheus"
 
 # Start prometheus
-echo "Starting prometheus..."
-touch $PROMCONF
-prometheus --storage.tsdb.path ${DATADIR}
+echo "Starting VictoriaMetrics..."
+$VMBIN &
+http POST $VMIMPORT < data.file
+read -p "Imported samples in VictoriaMetrics. Press any key to kill VM"
 echo "Cleaning up..."
-rm -rf $PROMCONF $DATADIR
+pkill vm
